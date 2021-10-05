@@ -6,4 +6,136 @@
     android:layout_height="match_parent"
     tools:context=".activities.NewItemActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="Dodaj nowy przedmiot"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="#353532"
+        android:id="@+id/label"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:text="Kod:"
+                android:textSize="28sp"
+                android:layout_weight="3"
+                android:background="#A6A6A6"
+                android:gravity="end|center"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:text=""
+                android:textSize="22sp"
+                android:layout_weight="1"
+                android:focusedByDefault="true"
+                android:id="@+id/tv_barcode"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:text="Nazwa:"
+                android:textSize="28sp"
+                android:layout_weight="3"
+                android:background="#A6A6A6"
+                android:gravity="end|center"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:hint="Wpisz nazwę...."
+                android:textSize="22sp"
+                android:layout_weight="1"
+                android:id="@+id/ev_nazwa"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:nextFocusForward="@id/ev_ilosc"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:text="Ilość:"
+                android:textSize="28sp"
+                android:layout_weight="3"
+                android:gravity="end|center"
+                android:background="#A6A6A6"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:id="@+id/ev_ilosc"
+                android:hint="Podaj ilość sztuk...."
+                android:textSize="22sp"
+                android:singleLine="true"
+
+                android:layout_weight="1"
+                android:inputType="numberSigned"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:text="Min.:"
+                android:textSize="28sp"
+                android:layout_weight="3"
+                android:gravity="end|center"
+                android:background="#A6A6A6"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:hint="Podaj próg minimalny..."
+                android:textSize="22sp"
+                android:id="@+id/ev_min"
+                android:singleLine="true"
+                android:inputType="numberSigned"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="zapisz"
+            android:backgroundTint="#43CF43"
+            android:id="@+id/btn_zapisz"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="anuluj"
+            android:backgroundTint="#434343"
+            android:id="@+id/btn_cancel"
+            android:layout_weight="3"/>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

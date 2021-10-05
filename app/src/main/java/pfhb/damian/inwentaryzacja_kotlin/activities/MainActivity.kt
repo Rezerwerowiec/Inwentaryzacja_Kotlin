@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.activity_main.*
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
-import pfhb.damian.inwentaryzacja_kotlin.activities.LogsActivity
 import pfhb.damian.inwentaryzacja_kotlin.R
+import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         btn_stack.setOnClickListener{
-            intent = Intent(this, LogsActivity::class.java)
+            intent = Intent(this, StackActivity::class.java)
             startActivity(intent)
         }
         btn_dodaj.setOnClickListener{
@@ -112,6 +112,14 @@ class MainActivity : AppCompatActivity() {
             text_quantity.text = quantity.toString()
         }
 
+        btn_dodaj.setOnClickListener {
+            var data = HashMap<String, Any>()
+            data = fs.result as HashMap<String, Any>
+            data["quantity"] = data["quantity"].toString().toInt() + quantity
+            fs.putData("Inwentaryzacja_testy", barcode, data, ::onPutDataSuccess, ::onPutDataFailure)
+            mPopupWindow.dismiss()
+        }
+
 
         // Close window with button
         btn.setOnClickListener {
@@ -174,6 +182,17 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    fun onPutDataSuccess(){
+        Toast.makeText(baseContext, "Successfully added data.", Toast.LENGTH_LONG).show()
+    }
 
+    fun onPutDataFailure(){
+        Toast.makeText(baseContext, "Failed...", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        exitProcess(0)
+    }
 
 }

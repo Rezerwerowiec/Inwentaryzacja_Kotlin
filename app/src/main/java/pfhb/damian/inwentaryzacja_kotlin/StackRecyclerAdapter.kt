@@ -1,6 +1,5 @@
 package pfhb.damian.inwentaryzacja_kotlin
 
-import android.graphics.Color
 import android.graphics.Color.GREEN
 import android.graphics.Color.RED
 import android.view.LayoutInflater
@@ -9,26 +8,26 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-data class LogsRecyclerAdapter(private val mList: List<LogsViewModel>): RecyclerView.Adapter<LogsRecyclerAdapter.ViewHolder>()  {
+data class StackRecyclerAdapter(private val mList: List<StackViewModel>): RecyclerView.Adapter<StackRecyclerAdapter.ViewHolder>()  {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): LogsRecyclerAdapter.ViewHolder {
+    ): StackRecyclerAdapter.ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.recyclerview_item_row, parent, false)
         return ViewHolder(view)
     }
 
 
-    override fun onBindViewHolder(holder: LogsRecyclerAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: StackRecyclerAdapter.ViewHolder, position: Int) {
         val TextViewModel = mList[position]
         holder.textItemType.text = TextViewModel.itemType
-        holder.textQuantity.text = "${TextViewModel.quantity.toString()} szt."
+        holder.textQuantity.text = "${TextViewModel.quantity.toString()}"
         if(TextViewModel.isEnough)
             holder.isEnough.setBackgroundColor(GREEN)
         else holder.isEnough.setBackgroundColor(RED)
-
+        holder.isEnough.text = TextViewModel.barcode
     }
 
     /**

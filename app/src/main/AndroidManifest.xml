@@ -23,7 +23,7 @@
             android:name=".activities.PrintersActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.LogsActivity"
+            android:name=".activities.StackActivity"
             android:exported="true"
             android:noHistory="true" />
         <activity

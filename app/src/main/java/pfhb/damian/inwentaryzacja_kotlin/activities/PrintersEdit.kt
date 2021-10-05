@@ -27,7 +27,6 @@ class PrintersEdit : AppCompatActivity() {
 
     }
     fun continueLoadData(){
-        val allCheckboxes = findViewById<View>(R.id.printer_container).touchables
 
         for(item in fs.arrayResult){
             if(item.isNotEmpty()) {
@@ -36,6 +35,21 @@ class PrintersEdit : AppCompatActivity() {
 
                 printer_container.addView(checkBox)
             }
+        }
+
+        fs.getData("Inwentaryzacja_drukarki", printer_name, ::continueLoadDataSetCheckboxes)
+    }
+
+    fun continueLoadDataSetCheckboxes(){
+        val allCheckboxes = findViewById<View>(R.id.printer_container).touchables
+
+        for(cb in allCheckboxes){
+            var checkbox = cb as CheckBox
+            val list : List<String> = fs.result["array.kompatybilne"] as List<String>
+            for(s in list){
+                if(checkbox.text.equals(s)) checkbox.isChecked = true
+            }
+
         }
     }
 }

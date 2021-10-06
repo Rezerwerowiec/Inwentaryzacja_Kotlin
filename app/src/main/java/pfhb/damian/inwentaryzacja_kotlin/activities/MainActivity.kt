@@ -115,9 +115,21 @@ class MainActivity : AppCompatActivity() {
         btn_dodaj.setOnClickListener {
             var data = HashMap<String, Any>()
             data = fs.result as HashMap<String, Any>
-            data["quantity"] = data["quantity"].toString().toInt() + quantity
-            fs.putData("Inwentaryzacja_testy", barcode, data, ::onPutDataSuccess, ::onPutDataFailure)
-            mPopupWindow.dismiss()
+            val sum = data["quantity"].toString().toInt() + quantity
+            if(sum >= 0) {
+                data["quantity"] = data["quantity"].toString().toInt() + quantity
+                fs.putData(
+                    "Inwentaryzacja_testy",
+                    barcode,
+                    data,
+                    ::onPutDataSuccess,
+                    ::onPutDataFailure
+                )
+                mPopupWindow.dismiss()
+            }
+            else {
+                Toast.makeText(baseContext, "Ilość sztuk po zmianie nie moża być niższa od 0!", Toast.LENGTH_LONG).show()
+            }
         }
 
 

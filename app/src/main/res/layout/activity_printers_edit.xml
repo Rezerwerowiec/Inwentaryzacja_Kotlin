@@ -5,18 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.PrintersEdit"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/mainView">
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
         android:text="Edycja drukarki"
-        android:textSize="30sp"/>
-    <TextView
-        android:layout_width="wrap_content"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="#353532"/>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nazwa"
-        android:textSize="25sp"
-        android:id="@+id/printerName"/>
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="60sp"
+            android:textSize="25sp"
+            android:text="Nazwa:"
+            android:background="#A6A6A6"
+            android:layout_weight="3"
+            android:gravity="center|center_vertical"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="60sp"
+            android:hint="Wpisz nazwę drukarki..."
+            android:textSize="20sp"
+            android:id="@+id/printerName"
+            android:layout_weight="1"/>
+    </LinearLayout>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -28,13 +47,24 @@
             android:orientation="vertical">
         </LinearLayout>
     </ScrollView>
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="90sp"
-        android:minHeight="80sp"
-        android:text="zapisz"
-        android:textSize="30sp"
-        android:id="@+id/btn_save"
-        android:layout_weight="1"/>
+        android:layout_height="80sp"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="80sp"
+            android:text="zapisz"
+            android:textSize="30sp"
+            android:id="@+id/btn_save"
+            android:backgroundTint="#43CF43"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_width="120sp"
+            android:layout_height="match_parent"
+            android:src="@drawable/delete"
+            android:id="@+id/iv_delete"/>
+    </LinearLayout>
 
 </LinearLayout>

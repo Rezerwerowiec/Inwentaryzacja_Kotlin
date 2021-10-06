@@ -145,6 +145,20 @@ val fs = FirestoreExt()
             }
     }
 
+    fun deleteData(collection: String, docId: String, method: () -> Unit, onFailureMethod: (() -> Unit)?){
+        database.collection(collection)
+            .document(docId)
+            .delete()
+            .addOnSuccessListener {
+                method()
+            }
+            .addOnFailureListener {
+                if (onFailureMethod != null) {
+                    onFailureMethod()
+                }
+            }
+    }
+
     fun clear(){
         result = mapOf()
         arrayResult = arrayListOf()

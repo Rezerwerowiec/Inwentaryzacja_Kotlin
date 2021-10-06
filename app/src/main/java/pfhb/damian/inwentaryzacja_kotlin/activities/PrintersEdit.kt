@@ -3,9 +3,11 @@ package pfhb.damian.inwentaryzacja_kotlin.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.CheckBox
-import android.widget.Toast
+import android.view.ViewGroup
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_printers_edit.*
 import kotlinx.android.synthetic.main.recyclerview_printers.*
 import kotlinx.android.synthetic.main.recyclerview_printers.printerName
@@ -22,7 +24,47 @@ class PrintersEdit : AppCompatActivity() {
         printer_name = intent.getStringExtra("printerName").toString()
 
         btn_save.setOnClickListener { saveData() }
+        iv_delete.setOnClickListener{ askForSure()}
         loadData()
+    }
+
+    private fun askForSure() {
+        popUpYesNo("Czy na pewno chcesz usunąć drukarkę?")
+    }
+
+    fun popUpYesNo(_title : String){
+        val mLayoutInflater : LayoutInflater = LayoutInflater.from(baseContext)
+        val mView = mLayoutInflater.inflate(
+            R.layout.window_pop_up_yes_no,
+            null)
+        mView.findViewById<TextView>(R.id.popup_window_title).text = _title
+
+
+        val mPopupWindow = PopupWindow(
+            mView,
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, false
+        )
+        mPopupWindow.showAtLocation(findViewById(R.id.mainView), Gravity.CENTER, 0, 0);
+
+        mView.findViewById<Button>(R.id.popup_window_yes).setOnClickListener {
+            deleteButton()
+            mPopupWindow.dismiss()
+        }
+        mView.findViewById<Button>(R.id.popup_window_no).setOnClickListener {
+            mPopupWindow.dismiss()
+        }
+    }
+
+    private fun deleteButton() {
+        fs.deleteData("Inwentaryzacja_drukarki", printerName.text.toString(), ::onSuccessDelete, ::onFailureDelete)
+    }
+    fun onSuccessDelete(){
+        Toast.makeText(baseContext, "Usunięto pomyślnie ${printerName.text.toString()}", Toast.LENGTH_LONG).show()
+        startActivity(Intent(this, PrintersActivity::class.java))
+    }
+
+    fun onFailureDelete(){
+        Toast.makeText(baseContext, "Nie udało się usunąć ${printerName.text.toString()}", Toast.LENGTH_LONG).show()
     }
 
     private fun saveData() {
@@ -36,7 +78,7 @@ class PrintersEdit : AppCompatActivity() {
         }
         val data: HashMap<String, List<String>> = HashMap()
         data["array.kompatybilne"] = ls
-        fs.putListedData("Inwentaryzacja_drukarki", printer_name, data, ::onSuccessSaveData, ::onFailureSaveData)
+        fs.putListedData("Inwentaryzacja_drukarki", printerName.text.toString(), data, ::onSuccessSaveData, ::onFailureSaveData)
 
     }
 
@@ -50,8 +92,6 @@ class PrintersEdit : AppCompatActivity() {
     }
 
     fun loadData(){
-        printerName.text = "Nazwa: $printer_name"
-
         fs.getData("Inwentaryzacja_testy", ::continueLoadData)
 
     }
@@ -65,7 +105,9 @@ class PrintersEdit : AppCompatActivity() {
                 printer_container.addView(checkBox)
             }
         }
+        if(printer_name.isEmpty()) return
 
+        printerName.text = "$printer_name"
         fs.getData("Inwentaryzacja_drukarki", printer_name, ::continueLoadDataSetCheckboxes)
     }
 

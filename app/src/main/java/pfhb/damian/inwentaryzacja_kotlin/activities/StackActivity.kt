@@ -87,7 +87,6 @@ class StackActivity : AppCompatActivity() {
 
         val btn = mView.findViewById<Button>(R.id.popup_window_button)
         btn.text = "x"
-
         llView.addView(newTextView)
 
         val mPopupWindow = PopupWindow(
@@ -102,6 +101,8 @@ class StackActivity : AppCompatActivity() {
         val btn_dodaj = mView.findViewById<Button>(R.id.popup_window_dodaj)
         val text_quantity = mView.findViewById<TextView>(R.id.popup_window_quantity)
 
+        text_quantity.text = quantity.toString()
+        var quantity = this.quantity
         btn_plus.setOnClickListener{
             quantity++
             text_quantity.text = quantity.toString()
@@ -114,7 +115,7 @@ class StackActivity : AppCompatActivity() {
         }
 
         btn_dodaj.setOnClickListener {
-
+            this.quantity = quantity
             fs.getData("Inwentaryzacja_testy", barcode, ::continueLoadData2)
             mPopupWindow.dismiss()
         }

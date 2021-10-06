@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.activity_printers.*
+import kotlinx.android.synthetic.main.activity_printers_edit.*
 import pfhb.damian.inwentaryzacja_kotlin.*
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 
@@ -15,6 +17,9 @@ class PrintersActivity : AppCompatActivity() {
         setContentView(R.layout.activity_printers)
 
 
+        printer_add.setOnClickListener {
+            startActivity(Intent(this, PrintersEdit::class.java))
+        }
         loadData()
     }
 

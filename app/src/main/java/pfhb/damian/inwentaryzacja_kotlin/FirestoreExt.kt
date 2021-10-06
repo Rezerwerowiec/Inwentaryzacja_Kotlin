@@ -128,6 +128,22 @@ val fs = FirestoreExt()
     fun putData(collection: String, docId: String, data: HashMap<String, Any>, method: () -> Unit){
         putData(collection, docId, data, method, null)
     }
+    fun putListedData(collection: String, docId: String, data: HashMap<String, List<String>>, method: () -> Unit, onFailureMethod: () -> Unit){
+        database.collection(collection)
+            .document(docId)
+            .set(data)
+            .addOnSuccessListener {
+                Log.d(TAG, "RESULT: PUT onSuccess called")
+
+                method()
+            }
+            .addOnFailureListener {
+                if (onFailureMethod != null) {
+                    onFailureMethod()
+                }
+                Log.d(TAG, "RESULT: PUT onFailure called")
+            }
+    }
 
     fun clear(){
         result = mapOf()

@@ -1,5 +1,6 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -36,5 +37,10 @@ class PrintersActivity : AppCompatActivity() {
             val adapter = PrinterRecyclerAdapter(data)
             recyclerview.adapter = adapter
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(this, MainActivity::class.java))
     }
 }

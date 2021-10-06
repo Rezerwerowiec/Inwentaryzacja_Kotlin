@@ -18,8 +18,7 @@ import pfhb.damian.inwentaryzacja_kotlin.R
 class StackActivity : AppCompatActivity() {
     lateinit var barcode : String
     lateinit var name : String
-    var _quantity = 0
-    var quantity = 1
+    var quantity = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,17 +58,16 @@ class StackActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(baseContext, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
     fun onClickShowWindow(view: android.view.View) {
         name = view.findViewById<TextView>(R.id.itemType).text.toString()
         barcode = view.findViewById<TextView>(R.id.isEnough).text.toString()
-        _quantity = view.findViewById<TextView>(R.id.itemQuantity).text.toString().toInt()
+        quantity = view.findViewById<TextView>(R.id.itemQuantity).text.toString().toInt()
         popUp("Zmiana stanu przedmiotu", "$barcode \n" +
                 "Nazwa: $name \n" +
-                "Sztuki na magazynie: $_quantity \n")
+                "Sztuki na magazynie: $quantity \n")
     }
 
     fun popUp(_title : String, _text : String ){
@@ -99,7 +97,6 @@ class StackActivity : AppCompatActivity() {
 
         mPopupWindow.showAtLocation(findViewById(R.id.mainView), Gravity.CENTER, 0, 0);
         windowDragging(mView, mPopupWindow)
-
         val btn_plus = mView.findViewById<Button>(R.id.popup_window_plus)
         val btn_minus = mView.findViewById<Button>(R.id.popup_window_minus)
         val btn_dodaj = mView.findViewById<Button>(R.id.popup_window_dodaj)
@@ -107,17 +104,16 @@ class StackActivity : AppCompatActivity() {
 
         btn_plus.setOnClickListener{
             quantity++
-            if(quantity == 0) quantity = 1
             text_quantity.text = quantity.toString()
         }
         btn_minus.setOnClickListener {
+            if(quantity < 0) return@setOnClickListener
             quantity--
             if(quantity == 0) quantity = -1
             text_quantity.text = quantity.toString()
         }
 
         btn_dodaj.setOnClickListener {
-
 
             fs.getData("Inwentaryzacja_testy", barcode, ::continueLoadData2)
             mPopupWindow.dismiss()
@@ -133,7 +129,7 @@ class StackActivity : AppCompatActivity() {
     fun continueLoadData2(){
         var data = HashMap<String, Any>()
         data = fs.result as HashMap<String, Any>
-        data["quantity"] = quantity + _quantity
+        data["quantity"] = quantity
             fs.putData("Inwentaryzacja_testy", barcode, data, ::onPutDataSuccess, ::onPutDataFailure)
 
     }

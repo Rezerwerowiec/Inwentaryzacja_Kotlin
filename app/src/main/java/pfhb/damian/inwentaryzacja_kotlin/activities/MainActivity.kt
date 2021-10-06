@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        exitProcess(0)
+        finishAffinity()
     }
 
 }

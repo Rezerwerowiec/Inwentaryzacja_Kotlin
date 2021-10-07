@@ -90,7 +90,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/window_ll_desc"
+                    app:layout_constraintTop_toBottomOf="@id/popup_window_printer_container"
                     android:id="@+id/popup_window_dodaj"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,10 @@ package pfhb.damian.inwentaryzacja_kotlin
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 
 class FirestoreExt {
     companion object{
@@ -40,11 +43,21 @@ val fs = FirestoreExt()
             .addOnCanceledListener { Log.d(TAG, "RESULT: AddOnCancelled called....") }
         Log.d(TAG, "RESULT: FireExt before return")
     }
-    private fun getDataByCollectionMethod(dbName : String, method: () -> Unit, onFailureMethod: (() -> Unit)?){
+    private fun getDataByCollectionMethod(dbName: String, method: () -> Unit, onFailureMethod: (() -> Unit)?, sortBy: String?){
         Log.d(TAG, "RESULT: FireExt is called!")
-        database.collection(dbName)
-            .get()
-            .addOnSuccessListener{
+        var query : Task<QuerySnapshot>
+        if (sortBy != null) {
+            query = database.collection(dbName)
+                .orderBy(sortBy, Query.Direction.ASCENDING)
+                .get()
+        }
+                else
+        {
+            query = database.collection(dbName)
+                .get()
+        }
+
+        query.addOnSuccessListener{
                 for(doc in it) {
                     Log.d(TAG, "RESULT: AddOnSuccess called...")
                     var temp : Map<String, Any> = mapOf("docId" to doc.id)
@@ -59,7 +72,7 @@ val fs = FirestoreExt()
         Log.d(TAG, "RESULT: FireExt before return")
     }
 
-    fun getData(collection: String, documentId: String?, method: () -> Unit, onFailureMethod: (() -> Unit)?){
+    fun getData(collection: String, documentId: String?, method: () -> Unit, onFailureMethod: (() -> Unit)?, sortBy: String?){
         clear()
 
 //        th = Thread {
@@ -86,24 +99,24 @@ val fs = FirestoreExt()
 //        th.start()
 
         if (documentId.isNullOrEmpty()) {
-            getDataByCollectionMethod(collection, method, onFailureMethod)
-
+            getDataByCollectionMethod(collection, method, onFailureMethod, sortBy)
         } else {
             getDataByDocumentIdMethod(collection, documentId, method, onFailureMethod)
         }
     }
 
-    fun getData(collection: String, method : () -> Unit) {
-        getData(collection, null, method, null)
+    fun getData(collection: String, method : () -> Unit, sortBy: String) {
+        getData(collection, null, method, null, sortBy)
     }
-    fun getData(collection: String, method : () -> Unit, onFailureMethod : () -> Unit){
-        getData(collection, null, method, onFailureMethod)
+    fun getData(collection: String, method : () -> Unit, onFailureMethod : () -> Unit, sortBy: String){
+        getData(collection, null, method, onFailureMethod, sortBy)
     }
     fun getData(collection: String, docId: String, method: () -> Unit){
-        getData(collection, docId, method, null)
+        getData(collection, docId, method, null, null)
     }
-
-
+    fun getData(collection: String, method: () -> Unit){
+        getData(collection, null, method, null, null)
+    }
 
 
 
@@ -138,9 +151,7 @@ val fs = FirestoreExt()
                 method()
             }
             .addOnFailureListener {
-                if (onFailureMethod != null) {
-                    onFailureMethod()
-                }
+                onFailureMethod()
                 Log.d(TAG, "RESULT: PUT onFailure called")
             }
     }

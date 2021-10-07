@@ -1,28 +1,159 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
+import android.app.Activity
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.firestore.FieldValue
+import kotlinx.android.synthetic.main.activity_printers.*
+import kotlinx.android.synthetic.main.activity_printers.search_btn_delete
+import kotlinx.android.synthetic.main.activity_printers.search_tv_text
+import kotlinx.android.synthetic.main.activity_stack.*
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
+import pfhb.damian.inwentaryzacja_kotlin.R
 import pfhb.damian.inwentaryzacja_kotlin.StackRecyclerAdapter
 import pfhb.damian.inwentaryzacja_kotlin.StackViewModel
-import pfhb.damian.inwentaryzacja_kotlin.R
+import java.util.*
+import kotlin.collections.ArrayList
 
 class StackActivity : AppCompatActivity() {
     lateinit var barcode : String
     lateinit var name : String
+    var sortBy = "quantity"
     var quantity = 0
+    val items = ArrayList<Map<String, Any>>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stack)
+
+        // SEARCH ENGINE BUTTONS
+        search_btn_delete.setOnClickListener{
+            search_tv_text.setText("")
+            loadData()
+            val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(this@StackActivity.findViewById<ConstraintLayout>(R.id.mainView).windowToken, 0)
+
+        }   // TEXT CLEAR BUTTON
+        search_btn_search.setOnClickListener{
+            if(sortBy == "quantity"){
+                sortBy = "Item"
+                loadData()
+                search_btn_search.setImageResource(R.drawable.sort_a_z)
+            }
+            else {
+                sortBy = "quantity"
+                loadData()
+                search_btn_search.setImageResource(R.drawable.sort_1_9)
+            }
+        }
+        search_tv_text.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                //loadData()
+                val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(this@StackActivity.findViewById<ConstraintLayout>(R.id.mainView).windowToken, 0)
+                true
+            } else false
+        }
+        search_tv_text.doOnTextChanged { _, _, _, _ -> changedText() }
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+        my_toolbar.title = "STAN MAGAZYNOWY"
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+
+        menuInflater.inflate(R.menu.send_email, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
+        R.id.action_send_email -> {
+            sendEmail()
+            true
+        }
+        else -> {
+            super.onOptionsItemSelected(item)
+            Toast.makeText(baseContext, "Uruchamiam skrypt mailowy...", Toast.LENGTH_SHORT).show()
+            false
+        }
+    }
+
+    private fun sendEmail() {
+        Log.d(TAG, "ACTION BAR?")
+//        if(items.isEmpty()) return
+        var emailText = ""
+
+        for(item in items){
+            val calc = item["quantity"].toString().toInt() - item["min"].toString().toInt()
+            if(calc < 0){
+                emailText += "\n----------------------------------" +
+                        "\nNazwa: ${item["Item"]}  |  ${item["Barcode"]}" +
+                        "\nIlość: ${item["quantity"]}   |  Brakuje: ${calc*(-1)} sztuk." +
+                        "\n----------------------------------"
+            }
+        }
+
+        val mIntent = Intent(Intent.ACTION_SEND)
+        mIntent.data = Uri.parse("mailto:")
+        mIntent.type = "message/rfc822"
+        mIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("d.piszka@pfhb.pl"))
+        mIntent.putExtra(Intent.EXTRA_SUBJECT, "Inwentaryzacja_raport_brakujace")
+        mIntent.putExtra(Intent.EXTRA_TEXT, emailText)
+
+
+        try {
+            //start email intent
+            startActivity(Intent.createChooser(mIntent, "Choose Email Client..."))
+        }
+        catch (e: Exception){
+            //if any thing goes wrong for example no email client application or any exception
+            //get and show exception message
+            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+        }
+
+    }
+
+    private fun changedText() {
+        runOnUiThread {
+            val data = ArrayList<StackViewModel>()
+            val recyclerview = findViewById<RecyclerView>(R.id.recyclerView)
+
+            recyclerview.layoutManager = GridLayoutManager(this, 1)
+            for(i in items){
+                if(i.isNotEmpty()) {
+                    if(i["Item"].toString().lowercase()
+                            .contains(search_tv_text.text.toString().lowercase())) {
+                        val isEnough =
+                            i["quantity"].toString().toInt() >= i["min"].toString().toInt()
+                        data.add(
+                            StackViewModel(
+                                i["Item"].toString(),
+                                i["quantity"].toString().toInt(),
+                                isEnough,
+                                i["Barcode"].toString()
+                            )
+                        )
+                    }
+                }
+            }
+
+
+            val adapter = StackRecyclerAdapter(data)
+            recyclerview.adapter = adapter
+        }
     }
 
     override fun onResume() {
@@ -32,23 +163,32 @@ class StackActivity : AppCompatActivity() {
     }
 
     private fun loadData() {
-        fs.getData("Inwentaryzacja_testy", ::continueLoadData)
+        fs.getData("Inwentaryzacja_testy", ::continueLoadData, ::failedLoadData, sortBy)
+    }
+
+    fun failedLoadData(){
+        items.clear()
+        Toast.makeText(baseContext, "Failed load data, check internet connection!", Toast.LENGTH_LONG).show()
+        startActivity(Intent(this, MainActivity::class.java))
     }
 
     private fun continueLoadData(){
-
+        items.clear()
         Log.d(ContentValues.TAG, "RESULT: AFTER ${fs.arrayResult}")
 
         runOnUiThread {
             val data = ArrayList<StackViewModel>()
             val recyclerview = findViewById<RecyclerView>(R.id.recyclerView)
+
             recyclerview.layoutManager = GridLayoutManager(this, 1)
             for(i in fs.arrayResult){
                 if(i.isNotEmpty()) {
+                    items.add(i)
                     val isEnough = i["quantity"].toString().toInt() >= i["min"].toString().toInt()
                     data.add(StackViewModel(i["Item"].toString(), i["quantity"].toString().toInt(), isEnough, i["Barcode"].toString()))
                 }
             }
+
 
             val adapter = StackRecyclerAdapter(data)
             recyclerview.adapter = adapter
@@ -58,10 +198,10 @@ class StackActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(baseContext, MainActivity::class.java)
-        startActivity(intent);
+        startActivity(intent)
     }
 
-    fun onClickShowWindow(view: android.view.View) {
+    fun onClickShowWindow(view: View) {
         name = view.findViewById<TextView>(R.id.itemType).text.toString()
         barcode = view.findViewById<TextView>(R.id.isEnough).text.toString()
         quantity = view.findViewById<TextView>(R.id.itemQuantity).text.toString().toInt()
@@ -81,6 +221,7 @@ class StackActivity : AppCompatActivity() {
         val newTextView = TextView(this)
         with(newTextView) {
             text = _text
+            setTextColor(Color.WHITE)
             textSize = 21F
             textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
@@ -94,7 +235,7 @@ class StackActivity : AppCompatActivity() {
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, false
         )
 
-        mPopupWindow.showAtLocation(findViewById(R.id.mainView), Gravity.CENTER, 0, 0);
+        mPopupWindow.showAtLocation(findViewById(R.id.mainView), Gravity.CENTER, 0, 0)
         windowDragging(mView, mPopupWindow)
         val btn_plus = mView.findViewById<Button>(R.id.popup_window_plus)
         val btn_minus = mView.findViewById<Button>(R.id.popup_window_minus)
@@ -128,8 +269,7 @@ class StackActivity : AppCompatActivity() {
     }
 
     fun continueLoadData2(){
-        var data = HashMap<String, Any>()
-        data = fs.result as HashMap<String, Any>
+        val data: HashMap<String, Any> = fs.result as HashMap<String, Any>
         data["quantity"] = quantity
             fs.putData("Inwentaryzacja_testy", barcode, data, ::onPutDataSuccess, ::onPutDataFailure)
 

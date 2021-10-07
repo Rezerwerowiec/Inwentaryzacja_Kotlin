@@ -2,6 +2,7 @@ package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.Manifest
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
             integrator.setCameraId(0)
             integrator.setBeepEnabled(true)
             integrator.setBarcodeImageEnabled(false)
+            integrator.setOrientationLocked(false)
             integrator.initiateScan()
         }
 
@@ -50,9 +52,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.d("MainActivity", "Scanned")
                 Toast.makeText(this, "Scanned: " + intentResult.contents, Toast.LENGTH_LONG).show()
-                barcode = intentResult.contents
+                barcode = intentResult.contents.replace("/", "-")
 
-                fs.getData("Inwentaryzacja_testy", barcode, ::continueAfterScanBarcode, ::continueAfterScanBarcodeOnFailure)
+                fs.getData("Inwentaryzacja_testy", barcode, ::continueAfterScanBarcode, ::continueAfterScanBarcodeOnFailure, null)
             }
         }
     }
@@ -79,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         with(newTextView) {
             text = _text
             textSize = 21F
+            setTextColor(Color.WHITE)
             textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
 
@@ -113,8 +116,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btn_dodaj.setOnClickListener {
-            var data = HashMap<String, Any>()
-            data = fs.result as HashMap<String, Any>
+            val data: HashMap<String, Any> = fs.result as HashMap<String, Any>
             val sum = data["quantity"].toString().toInt() + quantity
             if(sum >= 0) {
                 data["quantity"] = data["quantity"].toString().toInt() + quantity

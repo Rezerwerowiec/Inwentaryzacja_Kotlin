@@ -54,5 +54,6 @@ dependencies {
     // Scanning Barcodes Libraries
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     implementation 'com.google.zxing:core:3.2.1'
+    implementation 'org.apache.commons:commons-csv:1.5'
 
 }

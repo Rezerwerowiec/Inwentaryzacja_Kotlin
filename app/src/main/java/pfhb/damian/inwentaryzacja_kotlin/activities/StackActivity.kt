@@ -25,8 +25,13 @@ import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 import pfhb.damian.inwentaryzacja_kotlin.R
 import pfhb.damian.inwentaryzacja_kotlin.StackRecyclerAdapter
 import pfhb.damian.inwentaryzacja_kotlin.StackViewModel
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
+import android.os.StrictMode
+import android.os.StrictMode.VmPolicy
+import androidx.core.content.FileProvider
+
 
 class StackActivity : AppCompatActivity() {
     lateinit var barcode : String
@@ -94,24 +99,42 @@ class StackActivity : AppCompatActivity() {
     private fun sendEmail() {
         Log.d(TAG, "ACTION BAR?")
 //        if(items.isEmpty()) return
-        var emailText = ""
+        val builder = VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
+        var emailText = "AUTOMATYCZNIE WYGENEROWANA WIADOMOSC"
+        var csvTextBraki = "Nazwa,Kod Kreskowy,Ilosc,Minimum"
+        var csvTextWszystko = "Nazwa,Kod Kreskowy,Ilosc,Minimum"
 
+        val path = baseContext.filesDir
+        val fileBraki = File( path,"raport_braki.csv")
+        val fileWszystko = File( path, "raport_wszystko.csv")
         for(item in items){
             val calc = item["quantity"].toString().toInt() - item["min"].toString().toInt()
             if(calc < 0){
                 emailText += "\n----------------------------------" +
                         "\nNazwa: ${item["Item"]}  |  ${item["Barcode"]}" +
-                        "\nIlość: ${item["quantity"]}   |  Brakuje: ${calc*(-1)} sztuk." +
-                        "\n----------------------------------"
-            }
-        }
+                        "\nIlość: ${item["quantity"]}   |  Brakuje: ${calc*(-1)} sztuk."
+                csvTextBraki +="\n${item["Item"]},${item["Barcode"]},${item["quantity"]},${item["min"]}"
 
-        val mIntent = Intent(Intent.ACTION_SEND)
+
+                fileBraki.writeText(csvTextBraki, charset("windows-1250"))
+            }
+            csvTextWszystko +="\n${item["Item"]},${item["Barcode"]},${item["quantity"]},${item["min"]}"
+            fileWszystko.writeText(csvTextWszystko, charset("windows-1250"))
+
+        }
+        val mIntent = Intent(Intent.ACTION_SEND_MULTIPLE)
         mIntent.data = Uri.parse("mailto:")
         mIntent.type = "message/rfc822"
         mIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("d.piszka@pfhb.pl"))
         mIntent.putExtra(Intent.EXTRA_SUBJECT, "Inwentaryzacja_raport_brakujace")
         mIntent.putExtra(Intent.EXTRA_TEXT, emailText)
+        val fileURI = FileProvider.getUriForFile(baseContext, "$packageName.fileprovider", fileBraki)
+        val fileURIWszystko = FileProvider.getUriForFile(baseContext, "$packageName.fileprovider", fileWszystko)
+        val uris = ArrayList<Uri>()
+        uris.add(fileURI)
+        uris.add(fileURIWszystko)
+        mIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 
 
         try {

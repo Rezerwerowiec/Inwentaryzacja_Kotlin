@@ -23,13 +23,13 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="630sp"
         android:scrollbars="vertical"
         tools:listitem="@layout/recyclerview_item_row"
         app:layout_constraintTop_toBottomOf="@id/my_toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        android:paddingTop="70sp"
-        android:paddingBottom="70sp"
+        android:paddingTop="0sp"
+        android:paddingBottom="0sp"
         app:layout_constraintBottom_toTopOf="@id/printer_ll_search_engine"/>
 
     <LinearLayout
@@ -38,7 +38,8 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/printer_ll_search_engine">
+        android:id="@+id/printer_ll_search_engine"
+        android:background="@color/white">
         <ImageView
             android:layout_width="20sp"
             android:layout_height="80sp"

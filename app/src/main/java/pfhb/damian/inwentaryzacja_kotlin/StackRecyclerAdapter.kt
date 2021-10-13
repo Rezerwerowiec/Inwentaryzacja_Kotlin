@@ -27,7 +27,7 @@ data class StackRecyclerAdapter(private val mList: List<StackViewModel>): Recycl
         if(TextViewModel.isEnough)
             holder.isEnough.setBackgroundColor(GREEN)
         else holder.isEnough.setBackgroundColor(RED)
-            //holder.isEnough.text = TextViewModel.barcode
+        holder.isEnough.text = TextViewModel.barcode
     }
 
     /**

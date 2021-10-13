@@ -1,8 +1,10 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +27,10 @@ class PrintersEdit : AppCompatActivity() {
 
         btn_save.setOnClickListener { saveData() }
         iv_delete.setOnClickListener{ askForSure()}
+    }
+
+    override fun onStart() {
+        super.onStart()
         loadData()
     }
 
@@ -101,14 +107,14 @@ class PrintersEdit : AppCompatActivity() {
             if(item.isNotEmpty()) {
                 val checkBox = CheckBox(this)
                 checkBox.text = item["Item"].toString()
-
                 printer_container.addView(checkBox)
             }
         }
-        if(printer_name.isEmpty()) return
 
-        printerName.text = "$printer_name"
-        fs.getData("Inwentaryzacja_drukarki", printer_name, ::continueLoadDataSetCheckboxes)
+        if(printer_name.isNotEmpty()) {
+            printerName.text = printer_name
+            fs.getData("Inwentaryzacja_drukarki", printer_name, ::continueLoadDataSetCheckboxes)
+        }
     }
 
     fun continueLoadDataSetCheckboxes(){

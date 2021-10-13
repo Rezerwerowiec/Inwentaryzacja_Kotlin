@@ -33,6 +33,8 @@
             android:layout_height="60sp"
             android:hint="Wpisz nazwę drukarki..."
             android:textSize="20sp"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
             android:id="@+id/printerName"
             android:layout_weight="1"/>
     </LinearLayout>

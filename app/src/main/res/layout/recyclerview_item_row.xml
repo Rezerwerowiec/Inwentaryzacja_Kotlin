@@ -22,7 +22,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:background = "#00FF00"
             android:id="@+id/isEnough"
-            android:text=""
+            android:textSize="0sp"
             />
     <TextView
         android:id="@+id/itemType"

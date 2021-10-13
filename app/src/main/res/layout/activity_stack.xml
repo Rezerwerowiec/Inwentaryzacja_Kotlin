@@ -20,14 +20,18 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="630sp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:scrollbars="vertical"
         tools:listitem="@layout/recyclerview_item_row"
-        app:layout_constraintTop_toBottomOf="@id/my_toolbar"
-        app:layout_constraintStart_toStartOf="parent"
         android:paddingTop="0sp"
         android:paddingBottom="0sp"
         app:layout_constraintBottom_toTopOf="@id/printer_ll_search_engine"/>
@@ -65,6 +69,7 @@
             android:layout_marginStart="15sp"
             android:src="@drawable/sort_1_9"
             android:id="@+id/search_btn_search"/>
+    </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -36,6 +36,8 @@ class MainActivity : AppCompatActivity() {
         // HIDE BUTTONS BEFORE LOGIN
         btn_dodaj.visibility = View.INVISIBLE
         start_menu_container.visibility = View.INVISIBLE
+        start_menu_change_location.visibility = View.INVISIBLE
+
         ////////////////////////////
         btn_dodaj.setOnClickListener{
             requestPermissions(arrayOf(Manifest.permission.CAMERA.toString()), 100)
@@ -58,6 +60,17 @@ class MainActivity : AppCompatActivity() {
         takeLoginType()
 
         start_menu_logout.setOnClickListener {logOut()}
+        start_menu_change_location.setOnClickListener { changeLocation() }
+    }
+
+    private fun changeLocation() {
+        location = when(location){
+            "BY" -> "GD"
+            "GD" -> "OL"
+            "OL" -> "BY"
+            else -> return
+        }
+        updateUI()
     }
 
     fun logOut(){
@@ -97,13 +110,20 @@ class MainActivity : AppCompatActivity() {
             userType = fs.result["type"].toString()
             location = fs.result["location"].toString()
             fs.dbPrefix = location
-            start_menu_info.text = "Zalogowany: ${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
+            updateUI()
         }
 
         if((userType == "Administrator" || userType == "Użytkownik") && location.isNotEmpty()){
             btn_dodaj.visibility = View.VISIBLE
             start_menu_container.visibility = View.VISIBLE
         }
+        if(userType == "Administrator"){
+            start_menu_change_location.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateUI() {
+        start_menu_info.text = "${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
     }
 
     fun continueAfterCreateUser(){

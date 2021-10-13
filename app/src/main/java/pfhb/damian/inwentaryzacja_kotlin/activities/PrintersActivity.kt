@@ -30,7 +30,9 @@ class PrintersActivity : AppCompatActivity() {
 
 
         printer_add.setOnClickListener {
-            startActivity(Intent(this, PrintersEdit::class.java))
+            val intent = Intent(this, PrintersEdit::class.java)
+            intent.putExtra("printerName", "")
+            startActivity(intent)
         }
         loadData()
 

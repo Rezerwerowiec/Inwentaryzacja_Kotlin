@@ -63,9 +63,9 @@ class FirestoreExt {
                     temp = temp + doc.data
                     arrayResult.add( temp)
                     Log.d(TAG, "RESULT: GOT FROM FireExt! $arrayResult")
-                    method()
                 }
-            }
+            method()
+        }
             .addOnFailureListener { Log.d(TAG, "RESULT: AddOnFailure called...")
                 if(onFailureMethod != null)
                     onFailureMethod()}

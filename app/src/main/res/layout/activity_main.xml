@@ -21,13 +21,6 @@
             android:id="@+id/btn_dodaj"
             android:layout_weight="1"
             android:layout_margin="2dp"/>
-<!--        <Button-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:text="wydaj"-->
-<!--            android:id="@+id/btn_wydaj"-->
-<!--            android:layout_weight="1"-->
-<!--            android:layout_margin="2dp"/>-->
     </LinearLayout>
 
     <ImageView
@@ -47,6 +40,14 @@
         app:layout_constraintBottom_toTopOf="@id/start_menu_container"
         android:text="DANE #AUTO"
         android:id="@+id/start_menu_info"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="zmień \nlokację"
+        android:id="@+id/start_menu_change_location"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/start_menu_info"
+        app:layout_constraintTop_toTopOf="@id/start_menu_info"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

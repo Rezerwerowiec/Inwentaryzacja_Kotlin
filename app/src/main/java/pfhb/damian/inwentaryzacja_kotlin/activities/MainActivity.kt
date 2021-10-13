@@ -12,11 +12,18 @@ import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.activity_main.*
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 import pfhb.damian.inwentaryzacja_kotlin.R
+import pfhb.damian.inwentaryzacja_kotlin.activities.LoginActivity.Companion.loginEmail
+import pfhb.damian.inwentaryzacja_kotlin.activities.LoginActivity.Companion.loginName
 import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
 
     var barcode = ""
+
+    companion object{
+        var userType = "Gość"
+        var location = ""
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +32,11 @@ class MainActivity : AppCompatActivity() {
             intent = Intent(this, StackActivity::class.java)
             startActivity(intent)
         }
+
+        // HIDE BUTTONS BEFORE LOGIN
+        btn_dodaj.visibility = View.INVISIBLE
+        start_menu_container.visibility = View.INVISIBLE
+        ////////////////////////////
         btn_dodaj.setOnClickListener{
             requestPermissions(arrayOf(Manifest.permission.CAMERA.toString()), 100)
             val integrator = IntentIntegrator(this)
@@ -40,6 +52,63 @@ class MainActivity : AppCompatActivity() {
         btn_drukarki.setOnClickListener {
             startActivity(Intent(this, PrintersActivity::class.java))
         }
+        if(loginEmail == "" || loginEmail.isEmpty())
+            startActivity(Intent(this, LoginActivity::class.java))
+
+        takeLoginType()
+
+        start_menu_logout.setOnClickListener {logOut()}
+    }
+
+    fun logOut(){
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.putExtra("wyloguj", true)
+        startActivity(intent)
+    }
+
+    private fun takeLoginType() {
+        fs.dbPrefix = ""
+        fs.getData("Inwentaryzacja_users", loginEmail, ::continueLoginType, ::continueLoginTypeFailure)
+
+    }
+
+    fun continueLoginTypeFailure(){
+        userType = "Gość"
+
+        val data = hashMapOf<String, Any>(
+            "name" to loginName,
+            "email" to loginEmail,
+            "type" to userType,
+            "location" to ""
+        )
+        fs.putData("Inwentaryzacja_users", loginEmail, data, ::continueAfterCreateUser, ::continueAfterCreateUserFailure)
+    }
+
+    private fun continueAfterCreateUserFailure() {
+        Toast.makeText(baseContext, "Tworzenie nowego konta nie powiodło się, na pewno Twoje konto należy do domeny pfhb.pl?", Toast.LENGTH_LONG).show()
+        logOut()
+    }
+
+    fun continueLoginType(){
+        if(fs.result.isEmpty()){
+            continueLoginTypeFailure()
+        }
+        else {
+            userType = fs.result["type"].toString()
+            location = fs.result["location"].toString()
+            fs.dbPrefix = location
+            start_menu_info.text = "Zalogowany: ${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
+        }
+
+        if((userType == "Administrator" || userType == "Użytkownik") && location.isNotEmpty()){
+            btn_dodaj.visibility = View.VISIBLE
+            start_menu_container.visibility = View.VISIBLE
+        }
+    }
+
+    fun continueAfterCreateUser(){
+        Toast.makeText(baseContext, "Utworzono nowe konto", Toast.LENGTH_SHORT).show()
+        takeLoginType()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -1,34 +1,93 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.Manifest
+import android.R.attr
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.ThemeUtils
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.iterator
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.activity_main.*
+import org.w3c.dom.Text
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 import pfhb.damian.inwentaryzacja_kotlin.R
 import pfhb.damian.inwentaryzacja_kotlin.activities.LoginActivity.Companion.loginEmail
 import pfhb.damian.inwentaryzacja_kotlin.activities.LoginActivity.Companion.loginName
+import pfhb.damian.inwentaryzacja_kotlin.activities.SettingsActivity.Companion.primaryColor
+import pfhb.damian.inwentaryzacja_kotlin.activities.SettingsActivity.Companion.secondaryColor
+import pfhb.damian.inwentaryzacja_kotlin.activities.SettingsActivity.Companion.textColor
 import kotlin.system.exitProcess
+import android.R.attr.button
+import android.app.Activity
+import android.content.ContentValues.TAG
+import android.content.res.ColorStateList
+import android.graphics.BlendMode
+
+import androidx.core.graphics.drawable.DrawableCompat
+
+import android.graphics.drawable.Drawable
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatTextView
+
 
 class MainActivity : AppCompatActivity() {
 
     var barcode = ""
 
-    companion object{
+    companion object {
         var userType = "Gość"
         var location = ""
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        fun applyCustomTheme(mainView : ViewGroup) {
+
+            mainView.setBackgroundColor(primaryColor)
+
+            for (view in mainView) {
+                if(view is AppCompatTextView) {
+                    Log.d(TAG, "TRYING TO CHANGE TEXT COLOR: ${view.javaClass.name}")
+                    view.setTextColor(textColor)
+                }
+                if (view is AppCompatButton) {
+                    Log.d(TAG, "TRYING TO CHANGE TINT COLOR")
+                    view.backgroundTintBlendMode = BlendMode.SRC_OVER
+                    view.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+                    view.setTextColor(textColor)
+                }
+                if(view is LinearLayout)
+                {
+                    //val llView = view as LinearLayout
+                    for(_view in view){
+                        if(_view is AppCompatTextView){
+                            _view.setTextColor(textColor)
+                        }
+                        else if(_view is AppCompatButton){
+                            Log.d(TAG, "TRYING TO CHANGE TINT COLOR")
+                            _view.backgroundTintBlendMode = BlendMode.SRC_OVER
+                            _view.backgroundTintList = ColorStateList.valueOf(secondaryColor)
+                            _view.setTextColor(textColor)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        btn_stack.setOnClickListener{
+
+        setupUI()
+        btn_stack.setOnClickListener {
             intent = Intent(this, StackActivity::class.java)
             startActivity(intent)
         }
@@ -39,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         start_menu_change_location.visibility = View.INVISIBLE
 
         ////////////////////////////
-        btn_dodaj.setOnClickListener{
+        btn_dodaj.setOnClickListener {
             requestPermissions(arrayOf(Manifest.permission.CAMERA.toString()), 100)
             val integrator = IntentIntegrator(this)
             integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES)
@@ -54,17 +113,41 @@ class MainActivity : AppCompatActivity() {
         btn_drukarki.setOnClickListener {
             startActivity(Intent(this, PrintersActivity::class.java))
         }
-        if(loginEmail == "" || loginEmail.isEmpty())
+        if (loginEmail == "" || loginEmail.isEmpty())
             startActivity(Intent(this, LoginActivity::class.java))
 
         takeLoginType()
 
-        start_menu_logout.setOnClickListener {logOut()}
+        btn_settings.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    SettingsActivity::class.java
+                )
+            )
+        }
+
+        start_menu_logout.setOnClickListener { logOut() }
         start_menu_change_location.setOnClickListener { changeLocation() }
+
+
     }
 
+    private fun setupUI() {
+        fs.getColorData(loginEmail, ::continueSetupUI)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun continueSetupUI(){
+        primaryColor = fs.result["PrimaryColor"]?.toString()?.toInt() ?: Color.WHITE
+        secondaryColor = fs.result["SecondaryColor"]?.toString()?.toInt() ?: Color.GRAY
+        textColor = fs.result["TextColor"]?.toString()?.toInt() ?: Color.BLACK
+        applyCustomTheme(mainView)
+    }
+
+
     private fun changeLocation() {
-        location = when(location){
+        location = when (location) {
             "BY" -> "GD"
             "GD" -> "OL"
             "OL" -> "BY"
@@ -73,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         updateUI()
     }
 
-    fun logOut(){
+    fun logOut() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.putExtra("wyloguj", true)
         startActivity(intent)
@@ -81,11 +164,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun takeLoginType() {
         fs.dbPrefix = ""
-        fs.getData("Inwentaryzacja_users", loginEmail, ::continueLoginType, ::continueLoginTypeFailure)
+        fs.getData(
+            "Inwentaryzacja_users",
+            loginEmail,
+            ::continueLoginType,
+            ::continueLoginTypeFailure
+        )
 
     }
 
-    fun continueLoginTypeFailure(){
+    fun continueLoginTypeFailure() {
         userType = "Gość"
 
         val data = hashMapOf<String, Any>(
@@ -94,39 +182,49 @@ class MainActivity : AppCompatActivity() {
             "type" to userType,
             "location" to ""
         )
-        fs.putData("Inwentaryzacja_users", loginEmail, data, ::continueAfterCreateUser, ::continueAfterCreateUserFailure)
+        fs.putData(
+            "Inwentaryzacja_users",
+            loginEmail,
+            data,
+            ::continueAfterCreateUser,
+            ::continueAfterCreateUserFailure
+        )
     }
 
     private fun continueAfterCreateUserFailure() {
-        Toast.makeText(baseContext, "Tworzenie nowego konta nie powiodło się, na pewno Twoje konto należy do domeny pfhb.pl?", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            baseContext,
+            "Tworzenie nowego konta nie powiodło się, na pewno Twoje konto należy do domeny pfhb.pl?",
+            Toast.LENGTH_LONG
+        ).show()
         logOut()
     }
 
-    fun continueLoginType(){
-        if(fs.result.isEmpty()){
+    fun continueLoginType() {
+        if (fs.result.isEmpty()) {
             continueLoginTypeFailure()
-        }
-        else {
+        } else {
             userType = fs.result["type"].toString()
             location = fs.result["location"].toString()
             fs.dbPrefix = location
             updateUI()
         }
 
-        if((userType == "Administrator" || userType == "Użytkownik") && location.isNotEmpty()){
+        if ((userType == "Administrator" || userType == "Użytkownik") && location.isNotEmpty()) {
             btn_dodaj.visibility = View.VISIBLE
             start_menu_container.visibility = View.VISIBLE
         }
-        if(userType == "Administrator"){
+        if (userType == "Administrator") {
             start_menu_change_location.visibility = View.VISIBLE
         }
     }
 
     private fun updateUI() {
-        start_menu_info.text = "${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
+        start_menu_info.text =
+            "${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
     }
 
-    fun continueAfterCreateUser(){
+    fun continueAfterCreateUser() {
         Toast.makeText(baseContext, "Utworzono nowe konto", Toast.LENGTH_SHORT).show()
         takeLoginType()
     }
@@ -140,29 +238,38 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
             } else {
                 Log.d("MainActivity", "Scanned")
-                Toast.makeText(this, "Scanned: " + intentResult.contents, Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Scanned: " + intentResult.contents, Toast.LENGTH_LONG)
+                    .show()
                 barcode = intentResult.contents.replace("/", "-")
 
-                fs.getData("Inwentaryzacja_testy", barcode, ::continueAfterScanBarcode, ::continueAfterScanBarcodeOnFailure, null)
+                fs.getData(
+                    "Inwentaryzacja_testy",
+                    barcode,
+                    ::continueAfterScanBarcode,
+                    ::continueAfterScanBarcodeOnFailure,
+                    null
+                )
             }
         }
     }
 
-    fun continueAfterScanBarcode(){
-        val dataText = "$barcode \nNazwa: ${fs.result["Item"]} \nSztuki na magazynie: ${fs.result["quantity"]} \nMinimalna: ${fs.result["min"]}"
+    fun continueAfterScanBarcode() {
+        val dataText =
+            "$barcode \nNazwa: ${fs.result["Item"]} \nSztuki na magazynie: ${fs.result["quantity"]} \nMinimalna: ${fs.result["min"]}"
         popUp("Dodaj sztukę", dataText)
     }
 
-    fun continueAfterScanBarcodeOnFailure(){
+    fun continueAfterScanBarcodeOnFailure() {
         popUpYesNo("Brak przedmiotu w bazie, czy chcesz utworzyć nowy?")
     }
 
 
-    fun popUp(_title : String, _text : String ){
-        val mLayoutInflater : LayoutInflater = LayoutInflater.from(baseContext)
+    fun popUp(_title: String, _text: String) {
+        val mLayoutInflater: LayoutInflater = LayoutInflater.from(baseContext)
         val mView = mLayoutInflater.inflate(
             R.layout.main_acitivity_pop_up_quick,
-            null)
+            null
+        )
         mView.findViewById<TextView>(R.id.popup_window_title).text = _title
         val llView = mView.findViewById<LinearLayout>(R.id.window_ll_desc)
 
@@ -193,21 +300,21 @@ class MainActivity : AppCompatActivity() {
         val btn_dodaj = mView.findViewById<Button>(R.id.popup_window_dodaj)
         val text_quantity = mView.findViewById<TextView>(R.id.popup_window_quantity)
 
-        btn_plus.setOnClickListener{
+        btn_plus.setOnClickListener {
             quantity++
-            if(quantity == 0) quantity = 1
+            if (quantity == 0) quantity = 1
             text_quantity.text = quantity.toString()
         }
         btn_minus.setOnClickListener {
             quantity--
-            if(quantity == 0) quantity = -1
+            if (quantity == 0) quantity = -1
             text_quantity.text = quantity.toString()
         }
 
         btn_dodaj.setOnClickListener {
             val data: HashMap<String, Any> = fs.result as HashMap<String, Any>
             val sum = data["quantity"].toString().toInt() + quantity
-            if(sum >= 0) {
+            if (sum >= 0) {
                 data["quantity"] = data["quantity"].toString().toInt() + quantity
                 fs.putData(
                     "Inwentaryzacja_testy",
@@ -217,9 +324,12 @@ class MainActivity : AppCompatActivity() {
                     ::onPutDataFailure
                 )
                 mPopupWindow.dismiss()
-            }
-            else {
-                Toast.makeText(baseContext, "Ilość sztuk po zmianie nie moża być niższa od 0!", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(
+                    baseContext,
+                    "Ilość sztuk po zmianie nie moża być niższa od 0!",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -230,11 +340,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun popUpYesNo(_title : String){
-        val mLayoutInflater : LayoutInflater = LayoutInflater.from(baseContext)
+    fun popUpYesNo(_title: String) {
+        val mLayoutInflater: LayoutInflater = LayoutInflater.from(baseContext)
         val mView = mLayoutInflater.inflate(
             R.layout.window_pop_up_yes_no,
-            null)
+            null
+        )
         mView.findViewById<TextView>(R.id.popup_window_title).text = _title
 
 
@@ -256,7 +367,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun windowDragging(mView : View, mPopupWindow:PopupWindow){
+    fun windowDragging(mView: View, mPopupWindow: PopupWindow) {
         mView.setOnTouchListener(object : View.OnTouchListener {
             private var dx = 0
             private var dy = 0
@@ -265,8 +376,8 @@ class MainActivity : AppCompatActivity() {
             override fun onTouch(view: View?, motionEvent: MotionEvent): Boolean {
                 when (motionEvent.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        dx +=  motionEvent.rawX.toInt() -ox
-                        dy +=  motionEvent.rawY.toInt() -oy
+                        dx += motionEvent.rawX.toInt() - ox
+                        dy += motionEvent.rawY.toInt() - oy
                     }
                     MotionEvent.ACTION_UP -> {
                         ox = motionEvent.rawX.toInt()
@@ -285,11 +396,11 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun onPutDataSuccess(){
+    fun onPutDataSuccess() {
         Toast.makeText(baseContext, "Successfully added data.", Toast.LENGTH_LONG).show()
     }
 
-    fun onPutDataFailure(){
+    fun onPutDataFailure() {
         Toast.makeText(baseContext, "Failed...", Toast.LENGTH_LONG).show()
     }
 

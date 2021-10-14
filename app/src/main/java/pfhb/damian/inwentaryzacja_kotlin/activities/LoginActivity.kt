@@ -18,12 +18,9 @@ import com.google.android.gms.common.SignInButton
 import android.R
 import android.view.View
 import android.widget.Button
+import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.android.synthetic.main.activity_login.*
 
-
-/**
- * Demonstrate Firebase Authentication using a Google ID Token.
- */
 class LoginActivity : Activity() {
 
     // [START declare_auth]
@@ -59,11 +56,13 @@ class LoginActivity : Activity() {
 
 
         val signInButton: SignInButton = findViewById(pfhb.damian.inwentaryzacja_kotlin.R.id.sign_in_button)
-        signInButton.setSize(SignInButton.SIZE_STANDARD)
+        signInButton.setSize(SignInButton.SIZE_WIDE)
 
         signInButton.setOnClickListener{
             signIn()
         }
+
+
 
     }
 

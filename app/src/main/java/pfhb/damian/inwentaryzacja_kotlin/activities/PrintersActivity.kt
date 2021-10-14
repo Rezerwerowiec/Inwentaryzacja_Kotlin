@@ -2,6 +2,7 @@ package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -18,12 +19,15 @@ import android.widget.TextView
 
 import android.widget.EditText
 import android.widget.TextView.OnEditorActionListener
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doOnTextChanged
+import pfhb.damian.inwentaryzacja_kotlin.activities.MainActivity.Companion.applyCustomTheme
 
 
 class PrintersActivity : AppCompatActivity() {
     val printers = ArrayList<Map<String, Any>>()
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_printers)
@@ -55,6 +59,8 @@ class PrintersActivity : AppCompatActivity() {
             } else false
         }
         search_tv_text.doOnTextChanged { _, _, _, _ -> changedText() }
+
+        applyCustomTheme(findViewById(R.id.mainView))
     }
 
     private fun changedText() {

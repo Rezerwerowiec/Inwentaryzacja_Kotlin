@@ -2,6 +2,7 @@ package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import kotlinx.android.synthetic.main.activity_printers_edit.*
 import kotlinx.android.synthetic.main.recyclerview_printers.*
 import kotlinx.android.synthetic.main.recyclerview_printers.printerName
@@ -20,6 +22,7 @@ import java.util.HashMap
 
 class PrintersEdit : AppCompatActivity() {
     lateinit var printer_name : String
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_printers_edit)
@@ -27,6 +30,8 @@ class PrintersEdit : AppCompatActivity() {
 
         btn_save.setOnClickListener { saveData() }
         iv_delete.setOnClickListener{ askForSure()}
+
+        MainActivity.applyCustomTheme(mainView)
     }
 
     override fun onStart() {

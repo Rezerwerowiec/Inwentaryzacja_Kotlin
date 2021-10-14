@@ -6,6 +6,7 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -30,6 +31,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 
 
@@ -41,6 +43,7 @@ class StackActivity : AppCompatActivity() {
     val items = ArrayList<Map<String, Any>>()
 
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_stack)
@@ -76,6 +79,8 @@ class StackActivity : AppCompatActivity() {
         search_tv_text.doOnTextChanged { _, _, _, _ -> changedText() }
         setSupportActionBar(findViewById(R.id.my_toolbar))
         my_toolbar.title = "STAN MAGAZYNOWY"
+
+        MainActivity.applyCustomTheme(findViewById(R.id.mainView))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

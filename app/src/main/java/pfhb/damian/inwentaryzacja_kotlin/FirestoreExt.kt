@@ -151,6 +151,21 @@ class FirestoreExt {
             }
     }
 
+    fun putColorData(user: String, data: HashMap<String, Int>){
+        database.collection(":Inwentaryzacja_users_theme")
+            .document(user)
+            .set(data)
+    }
+
+    fun getColorData(user: String, method: () -> Unit)
+    {
+        database.collection(":Inwentaryzacja_users_theme")
+            .document(user)
+            .get()
+            .addOnSuccessListener {
+                result = it.data as Map<String, Any>
+                method() }
+    }
     fun clear(){
         result = mapOf()
         arrayResult = arrayListOf()

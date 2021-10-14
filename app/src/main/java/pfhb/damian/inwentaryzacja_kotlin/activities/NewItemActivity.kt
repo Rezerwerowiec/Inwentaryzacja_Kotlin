@@ -1,15 +1,19 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import kotlinx.android.synthetic.main.activity_new_item.*
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 import pfhb.damian.inwentaryzacja_kotlin.R
+import pfhb.damian.inwentaryzacja_kotlin.activities.MainActivity.Companion.applyCustomTheme
 
 class NewItemActivity : AppCompatActivity() {
     lateinit var barcode : String
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_item)
@@ -18,6 +22,8 @@ class NewItemActivity : AppCompatActivity() {
         tv_barcode.text = barcode
         btn_zapisz.setOnClickListener { save() }
         btn_cancel.setOnClickListener { startActivity(Intent(this, MainActivity::class.java)) }
+
+        applyCustomTheme(mainView)
     }
 
     private fun save() {

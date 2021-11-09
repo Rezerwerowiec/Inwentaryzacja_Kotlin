@@ -1,21 +1,16 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.Manifest
-import android.R.attr
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.ThemeUtils
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.iterator
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.activity_main.*
-import org.w3c.dom.Text
 import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 import pfhb.damian.inwentaryzacja_kotlin.R
 import pfhb.damian.inwentaryzacja_kotlin.activities.LoginActivity.Companion.loginEmail
@@ -23,16 +18,10 @@ import pfhb.damian.inwentaryzacja_kotlin.activities.LoginActivity.Companion.logi
 import pfhb.damian.inwentaryzacja_kotlin.activities.SettingsActivity.Companion.primaryColor
 import pfhb.damian.inwentaryzacja_kotlin.activities.SettingsActivity.Companion.secondaryColor
 import pfhb.damian.inwentaryzacja_kotlin.activities.SettingsActivity.Companion.textColor
-import kotlin.system.exitProcess
-import android.R.attr.button
-import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.res.ColorStateList
 import android.graphics.BlendMode
 
-import androidx.core.graphics.drawable.DrawableCompat
-
-import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatButton
@@ -43,7 +32,10 @@ class MainActivity : AppCompatActivity() {
 
     var barcode = ""
 
+
+
     companion object {
+        var logged = false
         var userType = "Gość"
         var location = ""
 
@@ -150,7 +142,8 @@ class MainActivity : AppCompatActivity() {
         location = when (location) {
             "BY" -> "GD"
             "GD" -> "OL"
-            "OL" -> "BY"
+            "OL" -> "TEST"
+            "TEST" -> "BY"
             else -> return
         }
         updateUI()
@@ -163,7 +156,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun takeLoginType() {
-        fs.dbPrefix = ""
+        fs.db_prefix = ""
         fs.getData(
             "Inwentaryzacja_users",
             loginEmail,
@@ -206,7 +199,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             userType = fs.result["type"].toString()
             location = fs.result["location"].toString()
-            fs.dbPrefix = location
+            fs.db_prefix = location
             updateUI()
         }
 
@@ -217,11 +210,14 @@ class MainActivity : AppCompatActivity() {
         if (userType == "Administrator") {
             start_menu_change_location.visibility = View.VISIBLE
         }
+        logged = true
     }
 
     private fun updateUI() {
         start_menu_info.text =
             "${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
+        if(!logged)
+            fs.db_prefix = location
     }
 
     fun continueAfterCreateUser() {

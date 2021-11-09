@@ -18,12 +18,12 @@ class FirestoreExt {
 
     var result : Map<String, Any> = mapOf()
     var arrayResult : ArrayList<Map<String,Any>> = arrayListOf()
-    var dbPrefix = ""
+    var db_prefix = ""
 
     private var database : FirebaseFirestore = FirebaseFirestore.getInstance()
     private fun getDataByDocumentIdMethod(dbName : String, docId : String, method: () -> Unit, onFailureMethod: (() -> Unit)?){
         Log.d(TAG, "RESULT: FireExt is called!")
-        database.collection("$dbPrefix:$dbName")
+        database.collection("$db_prefix:$dbName")
             .document(docId)
             .get()
             .addOnSuccessListener{
@@ -48,11 +48,11 @@ class FirestoreExt {
     private fun getDataByCollectionMethod(dbName: String, method: () -> Unit, onFailureMethod: (() -> Unit)?, sortBy: String?){
         Log.d(TAG, "RESULT: FireExt is called!")
         val query : Task<QuerySnapshot> = if (sortBy != null) {
-            database.collection("$dbPrefix:$dbName")
+            database.collection("$db_prefix:$dbName")
                 .orderBy(sortBy, Query.Direction.ASCENDING)
                 .get()
         } else {
-            database.collection("$dbPrefix:$dbName")
+            database.collection("$db_prefix:$dbName")
                 .get()
         }
 
@@ -103,7 +103,7 @@ class FirestoreExt {
 
     fun putData(collection: String, docId: String, data : HashMap<String, Any>, method: () -> Unit, onFailureMethod: (() -> Unit)?){
 
-        database.collection("$dbPrefix:$collection")
+        database.collection("$db_prefix:$collection")
             .document(docId)
             .set(data)
             .addOnSuccessListener {
@@ -123,7 +123,7 @@ class FirestoreExt {
         putData(collection, docId, data, method, null)
     }
     fun putListedData(collection: String, docId: String, data: HashMap<String, List<String>>, method: () -> Unit, onFailureMethod: () -> Unit){
-        database.collection("$dbPrefix:$collection")
+        database.collection("$db_prefix:$collection")
             .document(docId)
             .set(data)
             .addOnSuccessListener {
@@ -138,7 +138,7 @@ class FirestoreExt {
     }
 
     fun deleteData(collection: String, docId: String, method: () -> Unit, onFailureMethod: (() -> Unit)?){
-        database.collection("$dbPrefix:$collection")
+        database.collection("$db_prefix:$collection")
             .document(docId)
             .delete()
             .addOnSuccessListener {

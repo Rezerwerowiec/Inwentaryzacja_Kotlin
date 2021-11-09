@@ -1,8 +1,10 @@
 package pfhb.damian.inwentaryzacja_kotlin.activities
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -31,13 +33,19 @@ import java.util.*
 import kotlin.collections.ArrayList
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
+import android.text.InputType
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
+import com.google.android.material.textfield.TextInputEditText
+import com.journeyapps.barcodescanner.camera.CameraSettings
+import android.view.WindowManager
+import kotlinx.android.synthetic.main.stack_activity_pop_up.*
 
 
 class StackActivity : AppCompatActivity() {
     lateinit var barcode : String
     lateinit var name : String
+    lateinit var handlerEditText : EditText
     var sortBy = "quantity"
     var quantity = 0
     val items = ArrayList<Map<String, Any>>()
@@ -234,14 +242,15 @@ class StackActivity : AppCompatActivity() {
         barcode = view.findViewById<TextView>(R.id.isEnough).text.toString()
         quantity = view.findViewById<TextView>(R.id.itemQuantity).text.toString().toInt()
         popUp("Zmiana stanu przedmiotu", "$barcode \n" +
-                "Nazwa: $name \n" +
-                "Sztuki na magazynie: $quantity \n")
+//                "Nazwa: $name \n" +
+                "Sztuki na magazynie: $quantity \n", name)
     }
 
-    fun popUp(_title : String, _text : String ){
+    fun popUp(_title : String, _text : String, _name : String ){
+        Log.d(TAG, "ABCD: $_name")
         val mLayoutInflater : LayoutInflater = LayoutInflater.from(baseContext)
         val mView = mLayoutInflater.inflate(
-            R.layout.main_acitivity_pop_up_quick,
+            R.layout.stack_activity_pop_up,
             null)
         mView.findViewById<TextView>(R.id.popup_window_title).text = _title
         val llView = mView.findViewById<LinearLayout>(R.id.window_ll_desc)
@@ -253,15 +262,25 @@ class StackActivity : AppCompatActivity() {
             textSize = 21F
             textAlignment = View.TEXT_ALIGNMENT_CENTER
         }
-
+        handlerEditText = EditText(this)
+        with(handlerEditText){
+            setText(_name)
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+        }
         val btn = mView.findViewById<Button>(R.id.popup_window_button)
         btn.text = "x"
+        llView.addView(handlerEditText)
         llView.addView(newTextView)
 
         val mPopupWindow = PopupWindow(
             mView,
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, false
         )
+
+
+        mPopupWindow.isFocusable = true
+        mPopupWindow.update()
 
         mPopupWindow.showAtLocation(findViewById(R.id.mainView), Gravity.CENTER, 0, 0)
         windowDragging(mView, mPopupWindow)
@@ -277,9 +296,9 @@ class StackActivity : AppCompatActivity() {
             text_quantity.text = quantity.toString()
         }
         btn_minus.setOnClickListener {
-            if(quantity < 0) return@setOnClickListener
+            if(quantity == 0) return@setOnClickListener
             quantity--
-            if(quantity == 0) quantity = -1
+//            if(quantity == 0) quantity = -1
             text_quantity.text = quantity.toString()
         }
 
@@ -299,7 +318,8 @@ class StackActivity : AppCompatActivity() {
     fun continueLoadData2(){
         val data: HashMap<String, Any> = fs.result as HashMap<String, Any>
         data["quantity"] = quantity
-            fs.putData("Inwentaryzacja_testy", barcode, data, ::onPutDataSuccess, ::onPutDataFailure)
+        data["Item"] = handlerEditText.text.toString()
+        fs.putData("Inwentaryzacja_testy", barcode, data, ::onPutDataSuccess, ::onPutDataFailure)
 
     }
 

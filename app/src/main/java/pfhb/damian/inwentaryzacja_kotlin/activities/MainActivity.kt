@@ -150,6 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun logOut() {
+        logged = false
         val intent = Intent(this, LoginActivity::class.java)
         intent.putExtra("wyloguj", true)
         startActivity(intent)
@@ -198,8 +199,10 @@ class MainActivity : AppCompatActivity() {
             continueLoginTypeFailure()
         } else {
             userType = fs.result["type"].toString()
-            location = fs.result["location"].toString()
-            fs.db_prefix = location
+            if(!logged) {
+                location = fs.result["location"].toString()
+                fs.db_prefix = location
+            }
             updateUI()
         }
 
@@ -216,8 +219,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI() {
         start_menu_info.text =
             "${userType} \n${loginName} \n${loginEmail} \nLokacja: ${location}"
-        if(!logged)
-            fs.db_prefix = location
+        fs.db_prefix = location
     }
 
     fun continueAfterCreateUser() {

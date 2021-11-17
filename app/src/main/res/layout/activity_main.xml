@@ -65,11 +65,13 @@
         app:layout_constraintBottom_toTopOf="@id/btn_dodaj_container"
         android:orientation="vertical"
         android:id="@+id/start_menu_container">
+
         <Button
+            android:id="@+id/btn_settings"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:text="ustawienia #TODO"
-            android:id="@+id/btn_settings"/>
+            android:text="ustawienia" />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="70dp"
@@ -79,8 +81,8 @@
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:text="stany magazynowe"
-            android:id="@+id/btn_stack"/>
-
+            android:id="@+id/btn_stack"
+        />
 
     </LinearLayout>
 

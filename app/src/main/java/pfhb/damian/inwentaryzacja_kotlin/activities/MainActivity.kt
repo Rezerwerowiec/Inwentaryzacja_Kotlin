@@ -23,6 +23,8 @@ import android.content.res.ColorStateList
 import android.graphics.BlendMode
 
 import android.os.Build
+import android.util.TypedValue
+import androidx.annotation.Dimension.DP
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
@@ -38,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         var logged = false
         var userType = "Gość"
         var location = ""
+        var textSize = 1f
 
         @RequiresApi(Build.VERSION_CODES.Q)
         fun applyCustomTheme(mainView : ViewGroup) {
@@ -48,12 +51,16 @@ class MainActivity : AppCompatActivity() {
                 if(view is AppCompatTextView) {
                     Log.d(TAG, "TRYING TO CHANGE TEXT COLOR: ${view.javaClass.name}")
                     view.setTextColor(textColor)
+                    Log.d(TAG, "FONT SIZE: ${view.textSize}")
+                    view.setTextSize(TypedValue.COMPLEX_UNIT_PX, view.textSize * textSize)
                 }
                 if (view is AppCompatButton) {
                     Log.d(TAG, "TRYING TO CHANGE TINT COLOR")
                     view.backgroundTintBlendMode = BlendMode.SRC_OVER
                     view.backgroundTintList = ColorStateList.valueOf(secondaryColor)
                     view.setTextColor(textColor)
+                    Log.d(TAG, "FONT SIZE: ${view.textSize}")
+                    view.setTextSize(TypedValue.COMPLEX_UNIT_PX, view.textSize * textSize)
                 }
                 if(view is LinearLayout)
                 {
@@ -61,12 +68,16 @@ class MainActivity : AppCompatActivity() {
                     for(_view in view){
                         if(_view is AppCompatTextView){
                             _view.setTextColor(textColor)
+                            Log.d(TAG, "FONT SIZE: ${_view.textSize}")
+                            _view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _view.textSize * textSize)
                         }
                         else if(_view is AppCompatButton){
                             Log.d(TAG, "TRYING TO CHANGE TINT COLOR")
                             _view.backgroundTintBlendMode = BlendMode.SRC_OVER
                             _view.backgroundTintList = ColorStateList.valueOf(secondaryColor)
                             _view.setTextColor(textColor)
+                            Log.d(TAG, "FONT SIZE: ${_view.textSize}")
+                            _view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _view.textSize * textSize)
                         }
                     }
                 }
@@ -122,7 +133,17 @@ class MainActivity : AppCompatActivity() {
         start_menu_logout.setOnClickListener { logOut() }
         start_menu_change_location.setOnClickListener { changeLocation() }
 
+    }
 
+    private fun continueGetVersion() {
+        val newestVersion = fs.result["version"]
+        val actualVersion =  resources.getString(resources.getIdentifier("AppVersion", "string", packageName))
+        if(newestVersion== actualVersion){
+            Toast.makeText(baseContext, "Posiadasz najnowszą wersję", Toast.LENGTH_LONG).show()
+        }
+        else {
+            Toast.makeText(baseContext, "Dostępna jest nowsza wersja: $newestVersion! : $actualVersion", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setupUI() {
@@ -202,6 +223,7 @@ class MainActivity : AppCompatActivity() {
             if(!logged) {
                 location = fs.result["location"].toString()
                 fs.db_prefix = location
+                fs.getAppVersion(::continueGetVersion)
             }
             updateUI()
         }

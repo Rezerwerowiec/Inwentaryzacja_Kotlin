@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Inwentaryzacja_Kotlin</string>
+    <string name="AppVersion">0.3.1</string>
 </resources>

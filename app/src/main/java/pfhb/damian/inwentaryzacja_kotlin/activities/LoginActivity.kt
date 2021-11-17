@@ -15,11 +15,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.android.gms.common.SignInButton
 
-import android.R
 import android.view.View
-import android.widget.Button
-import androidx.appcompat.app.AppCompatDelegate
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
+import pfhb.damian.inwentaryzacja_kotlin.FirestoreExt.Companion.fs
 
 class LoginActivity : Activity() {
 
@@ -65,6 +64,8 @@ class LoginActivity : Activity() {
 
 
     }
+
+
 
     // [START on_start_check_user]
     override fun onStart() {

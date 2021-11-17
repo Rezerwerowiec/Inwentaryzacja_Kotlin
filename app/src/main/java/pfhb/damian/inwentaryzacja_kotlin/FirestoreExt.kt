@@ -157,8 +157,26 @@ class FirestoreExt {
             .set(data)
     }
 
+
+    fun getAppVersion(method: () -> Unit){
+        clear()
+        Log.d(TAG, "Version: START")
+        database.collection("Inw_Version")
+            .document("AppVersion")
+            .get()
+            .addOnSuccessListener {
+                Log.d(TAG, "Version: ZNALEZIONO DANE")
+                result = it.data as Map<String, Any>
+                Log.d(TAG, "Version: POBRANO DANE")
+
+                method()
+            }
+            .addOnFailureListener {         Log.d(TAG, "Version: FAILED")
+            }
+    }
     fun getColorData(user: String, method: () -> Unit)
     {
+        clear()
         database.collection(":Inwentaryzacja_users_theme")
             .document(user)
             .get()
@@ -170,4 +188,5 @@ class FirestoreExt {
         result = mapOf()
         arrayResult = arrayListOf()
     }
+
 }

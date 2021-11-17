@@ -28,7 +28,9 @@ class SettingsActivity : AppCompatActivity() {
             Color.GRAY,
             Color.LTGRAY,
             Color.MAGENTA,
-            Color.YELLOW
+            Color.YELLOW,
+            Color.BLACK,
+            Color.rgb(150,150,200)
         )
     }
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -42,6 +44,18 @@ class SettingsActivity : AppCompatActivity() {
         loadData()
 
         MainActivity.applyCustomTheme(mainView)
+
+        settings_reset.setOnClickListener { reset() }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun reset() {
+        ccolors["PrimaryColor"] =  Color.WHITE
+        ccolors["SecondaryColor"] = Color.GRAY
+        ccolors["TextColor"] = Color.BLACK
+        fs.putColorData(loginEmail, ccolors)
+        updateUI()
+        recreate()
     }
 
     private fun loadData() {
